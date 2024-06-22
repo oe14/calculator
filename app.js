@@ -1,25 +1,68 @@
 const clearBtn = document.getElementById("clearBtn");
-const displayContent = document.getElementById("reorderdisplay");
 const previousNumber = document.getElementById("previousNumber");
-
 const currentNumber = document.getElementById("currentNumber");
-
 const buttons = document.querySelectorAll(".buttons");
+let previous = null;
+let operator = null;
 
-buttons.forEach((button) =>
+buttons.forEach((button) => {
 	button.addEventListener("click", function () {
-		currentNumber.textContent = currentNumber.textContent + button.textContent;
-		if (
-			button.textContent === "+" ||
-			button.textContent === "X" ||
-			button.textContent === "-" ||
-			button.textContent === "/"
+		const buttonText = button.textContent;
+
+		if (!isNaN(buttonText) || buttonText === ".") {
+			// Handle number and decimal point buttons
+			currentNumber.textContent += buttonText;
+		} else if (
+			buttonText === "+" ||
+			buttonText === "X" ||
+			buttonText === "-" ||
+			buttonText === "/"
 		) {
-			previousNumber.textContent = currentNumber.textContent;
-			currentNumber.textContent = "";
+			// Handle operator buttons
+			if (currentNumber.textContent !== "") {
+				previous = parseFloat(currentNumber.textContent);
+				operator = buttonText;
+				previousNumber.textContent = previous + " " + operator;
+				currentNumber.textContent = "";
+			}
 		}
-	})
-);
-clearBtn.addEventListener("click", function (e) {
-	location.reload();
+	});
+});
+
+function operation(current, previous, operator) {
+	switch (operator) {
+		case "+":
+			return previous + current;
+		case "-":
+			return previous - current;
+		case "X":
+			return previous * current;
+		case "/":
+			return previous / current;
+		default:
+			return current;
+	}
+}
+
+const equal = document.getElementById("equal");
+equal.addEventListener("click", function () {
+	if (
+		previous !== null &&
+		operator !== null &&
+		currentNumber.textContent !== ""
+	) {
+		const current = parseFloat(currentNumber.textContent);
+		const result = operation(current, previous, operator);
+		currentNumber.textContent = result;
+		previousNumber.textContent = "";
+		previous = null;
+		operator = null;
+	}
+});
+
+clearBtn.addEventListener("click", function () {
+	currentNumber.textContent = "";
+	previousNumber.textContent = "";
+	previous = null;
+	operator = null;
 });
